@@ -1,14 +1,14 @@
-add_executable(cpp_cmake_project_template.app)
+add_executable(ctrecon-math.app)
 
 if (MSVC)
-    target_compile_options(cpp_cmake_project_template.app
+    target_compile_options(ctrecon-math.app
         PRIVATE
             $<$<COMPILE_LANGUAGE:CXX>:/utf-8>
             $<$<COMPILE_LANGUAGE:CXX>:/Zc:preprocessor>
             $<$<COMPILE_LANGUAGE:CXX>:/std:c++23preview>
     )
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(cpp_cmake_project_template.app
+    target_compile_options(ctrecon-math.app
         PRIVATE
             $<$<COMPILE_LANGUAGE:CXX>:-Wall>
             $<$<COMPILE_LANGUAGE:CXX>:-Wextra>
@@ -20,14 +20,14 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 
-target_include_directories(cpp_cmake_project_template.app
+target_include_directories(ctrecon-math.app
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
         $<INSTALL_INTERFACE:include>
 )
 
-target_sources(cpp_cmake_project_template.app
+target_sources(ctrecon-math.app
     PRIVATE
         app.cpp
 )
@@ -35,14 +35,14 @@ target_sources(cpp_cmake_project_template.app
 
 
 
-target_link_libraries(cpp_cmake_project_template.app
+target_link_libraries(ctrecon-math.app
     PRIVATE
-        cpp_cmake_project_template
-        cpp_cmake_project_template.static
+        ctrecon-math
+        ctrecon-math.static
 )
 
 find_package(fmt REQUIRED)
-target_link_libraries(cpp_cmake_project_template.app
+target_link_libraries(ctrecon-math.app
     PRIVATE
         fmt::fmt
 )

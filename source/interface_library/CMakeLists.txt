@@ -1,14 +1,14 @@
-add_library(cpp_cmake_project_template.interface INTERFACE)
+add_library(ctrecon-math.interface INTERFACE)
 
 if (MSVC)
-    target_compile_options(cpp_cmake_project_template.interface
+    target_compile_options(ctrecon-math.interface
         INTERFACE
             $<$<COMPILE_LANGUAGE:CXX>:/utf-8>
             $<$<COMPILE_LANGUAGE:CXX>:/Zc:preprocessor>
             $<$<COMPILE_LANGUAGE:CXX>:/std:c++23preview>
     )
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(cpp_cmake_project_template.interface
+    target_compile_options(ctrecon-math.interface
         INTERFACE
             $<$<COMPILE_LANGUAGE:CXX>:-Wall>
             $<$<COMPILE_LANGUAGE:CXX>:-Wextra>
@@ -19,14 +19,14 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     )
 endif()
 
-target_include_directories(cpp_cmake_project_template.interface
+target_include_directories(ctrecon-math.interface
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
         $<INSTALL_INTERFACE:include>
 )
 
-target_sources(cpp_cmake_project_template.interface
+target_sources(ctrecon-math.interface
     INTERFACE
         global_regerr.hpp
 )
@@ -34,7 +34,7 @@ target_sources(cpp_cmake_project_template.interface
 
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
-target_link_libraries(cpp_cmake_project_template.interface
+target_link_libraries(ctrecon-math.interface
     INTERFACE
         fmt::fmt
         spdlog::spdlog

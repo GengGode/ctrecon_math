@@ -1,15 +1,15 @@
 #pragma once
 #if defined(_WIN32)
-    #ifdef cpp_cmake_project_template_identifier_EXPORTS
-        #define cpp_cmake_project_template_identifier_API __declspec(dllexport)
+    #ifdef ctrecon_math_EXPORTS
+        #define ctrecon_math_API __declspec(dllexport)
     #else
-        #define cpp_cmake_project_template_identifier_API __declspec(dllimport)
+        #define ctrecon_math_API __declspec(dllimport)
     #endif
 #else
-    #ifdef cpp_cmake_project_template_identifier_EXPORTS
-        #define cpp_cmake_project_template_identifier_API __attribute__((visibility("default")))
+    #ifdef ctrecon_math_EXPORTS
+        #define ctrecon_math_API __attribute__((visibility("default")))
     #else
-        #define cpp_cmake_project_template_identifier_API
+        #define ctrecon_math_API
     #endif
 #endif
 
@@ -18,11 +18,11 @@ extern "C"
 {
 #endif
 
-    cpp_cmake_project_template_identifier_API const char* get_version();
-    cpp_cmake_project_template_identifier_API int test();
+    ctrecon_math_API const char* get_version();
+    ctrecon_math_API int test();
 
 #ifdef __cplusplus
 }
 #endif
 
-#undef cpp_cmake_project_template_identifier_API
+#undef ctrecon_math_API
