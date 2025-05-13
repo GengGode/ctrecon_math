@@ -30,6 +30,8 @@ target_include_directories(ctrecon-math.app
 target_sources(ctrecon-math.app
     PRIVATE
         app.cpp
+        debugger.h
+        debugger.cpp
 )
 
 
@@ -42,7 +44,16 @@ target_link_libraries(ctrecon-math.app
 )
 
 find_package(fmt REQUIRED)
+find_package(implot CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(Vulkan REQUIRED)
+
 target_link_libraries(ctrecon-math.app
     PRIVATE
         fmt::fmt
+        glfw
+        implot::implot
+        imgui::imgui
+        Vulkan::Vulkan
 )

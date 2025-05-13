@@ -2,6 +2,19 @@
   "dependencies": [
     "fmt",
     "spdlog",
-    "gtest"
+    "gtest",
+    "glad",
+    "glfw3",
+    "implot",
+    "implot3d",
+    {
+      "name": "imgui",
+      "features": [
+        "freetype",
+        "glfw-binding",
+        "vulkan-binding",
+        "win32-binding"
+      ]
+    }
   ]
 }
