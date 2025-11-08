@@ -429,6 +429,7 @@ void window_main_task(GLFWwindow* window, std::atomic<std::shared_ptr<irender>>&
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImPlot::CreateContext();
+        ImPlot3D::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -458,6 +459,7 @@ void window_main_task(GLFWwindow* window, std::atomic<std::shared_ptr<irender>>&
         init_info.CheckVkResultFn = check_vk_result;
         ImGui_ImplVulkan_Init(&init_info);
 
+        io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\msyh.ttc",14.0f,nullptr,io.Fonts->GetGlyphRangesChineseFull());
         // glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
         // glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
         // glfwSetWindowAttrib(window, GLFW_FLOATING, GLFW_TRUE);
@@ -537,6 +539,7 @@ void window_main_task(GLFWwindow* window, std::atomic<std::shared_ptr<irender>>&
         check_vk_result(err);
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
+        ImPlot3D::DestroyContext();
         ImPlot::DestroyContext();
         ImGui::DestroyContext();
 

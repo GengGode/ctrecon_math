@@ -45,6 +45,7 @@ target_link_libraries(ctrecon-math.app
 
 find_package(fmt REQUIRED)
 find_package(implot CONFIG REQUIRED)
+find_package(implot3d CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
@@ -54,6 +55,7 @@ target_link_libraries(ctrecon-math.app
         fmt::fmt
         glfw
         implot::implot
+        implot3d::implot3d
         imgui::imgui
         Vulkan::Vulkan
 )
