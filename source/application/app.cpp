@@ -493,7 +493,23 @@ struct spiral_3d_render : irender
 
     void render() override
     {
-        ImGui::Begin("螺旋锥束CT扫描器可视化");
+        // 全屏窗口，无边框
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        
+        ImGuiWindowFlags window_flags = 
+            ImGuiWindowFlags_MenuBar | 
+            ImGuiWindowFlags_NoDocking |
+            ImGuiWindowFlags_NoTitleBar | 
+            ImGuiWindowFlags_NoCollapse | 
+            ImGuiWindowFlags_NoResize | 
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoBringToFrontOnFocus | 
+            ImGuiWindowFlags_NoNavFocus;
+        
+        ImGui::Begin("主窗口", nullptr, window_flags);
         
         // 自动动画更新
         if (动画开启)
@@ -520,102 +536,128 @@ struct spiral_3d_render : irender
             上次更新时间 = 0.0;
         }
         
+        // 左右分栏布局
+        float 左侧面板宽度 = 300.0f;  // 左侧面板宽度
+        ImVec2 窗口大小 = ImGui::GetContentRegionAvail();
+        
+        // 左侧控制面板
+        ImGui::BeginChild("左侧面板", ImVec2(左侧面板宽度, 窗口大小.y), true, ImGuiWindowFlags_None);
+        
+        // 紧凑的菜单列表样式
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 2));
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 4));
+        
+        // 快速切换按钮
+        if (ImGui::Selectable("自动动画", 动画开启, 0, ImVec2(0, 24)))
+        {
+            动画开启 = !动画开启;
+            if (动画开启)
+            {
+                上次更新时间 = ImGui::GetTime();
+            }
+        }
+        
+        if (ImGui::Selectable("显示切线平面", 显示切线平面, 0, ImVec2(0, 24)))
+        {
+            显示切线平面 = !显示切线平面;
+            更新数据();
+        }
+        
+        ImGui::Separator();
+        
         // 控制面板
-        if (ImGui::CollapsingHeader("控制参数"))
+        if (ImGui::CollapsingHeader("角度控制", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool 需要更新 = false;
-            
-            // 动画控制
-            if (ImGui::Checkbox("自动动画", &动画开启))
-            {
-                if (动画开启)
-                {
-                    上次更新时间 = ImGui::GetTime();
-                }
-            }
             
             if (动画开启)
             {
                 float 动画速度_f = static_cast<float>(动画速度);
-                if (ImGui::SliderFloat("动画速度 (rad/s)", &动画速度_f, 0.1f, 10.0f))
+                if (ImGui::SliderFloat("速度", &动画速度_f, 0.1f, 10.0f))
                 {
                     动画速度 = 动画速度_f;
                 }
             }
             
-            ImGui::Separator();
-            
             float 当前角度_f = static_cast<float>(当前角度);
-            if (ImGui::SliderFloat("当前角度 (rad)", &当前角度_f, 0.0f, static_cast<float>(4.0 * std::numbers::pi)))
+            if (ImGui::SliderFloat("角度", &当前角度_f, 0.0f, static_cast<float>(4.0 * std::numbers::pi)))
             {
                 当前角度 = 当前角度_f;
                 需要更新 = true;
             }
             
             float 角度步长_f = static_cast<float>(角度步长);
-            if (ImGui::SliderFloat("角度步长", &角度步长_f, 0.01f, 1.0f))
+            if (ImGui::SliderFloat("步长", &角度步长_f, 0.01f, 1.0f))
             {
                 角度步长 = 角度步长_f;
                 需要更新 = true;
             }
             
+            if (ImGui::Button("重置", ImVec2(-1, 0)))
+            {
+                当前角度 = 0.0;
+                需要更新 = true;
+            }
+            
+            if (需要更新)
+                更新数据();
+        }
+        
+        if (ImGui::CollapsingHeader("探测器", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            bool 需要更新 = false;
+            
             float u范围_f = static_cast<float>(u范围);
-            if (ImGui::SliderFloat("探测器U范围 (mm)", &u范围_f, 50.0f, 500.0f))
+            if (ImGui::SliderFloat("U范围", &u范围_f, 50.0f, 500.0f))
             {
                 u范围 = u范围_f;
                 需要更新 = true;
             }
             
             float v范围_f = static_cast<float>(v范围);
-            if (ImGui::SliderFloat("探测器V范围 (mm)", &v范围_f, 10.0f, 200.0f))
+            if (ImGui::SliderFloat("V范围", &v范围_f, 10.0f, 200.0f))
             {
                 v范围 = v范围_f;
                 需要更新 = true;
             }
             
-            if (ImGui::SliderInt("U采样数", &u采样数, 3, 20))
+            if (ImGui::SliderInt("U采样", &u采样数, 3, 20))
                 需要更新 = true;
             
-            if (ImGui::SliderInt("V采样数", &v采样数, 2, 10))
+            if (ImGui::SliderInt("V采样", &v采样数, 2, 10))
                 需要更新 = true;
+            
+            if (需要更新)
+                更新数据();
+        }
+        
+        if (ImGui::CollapsingHeader("轨迹", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            bool 需要更新 = false;
             
             float 轨迹圈数_f = static_cast<float>(轨迹圈数);
-            if (ImGui::SliderFloat("轨迹圈数", &轨迹圈数_f, 0.5f, 5.0f))
+            if (ImGui::SliderFloat("圈数", &轨迹圈数_f, 0.5f, 5.0f))
             {
                 轨迹圈数 = 轨迹圈数_f;
                 需要更新 = true;
             }
             
-            if (ImGui::Button("更新数据") || 需要更新)
-                更新数据();
-            
-            if (ImGui::Button("重置角度"))
-            {
-                当前角度 = 0.0;
-                更新数据();
-            }
-            
-            ImGui::Separator();
-            
-            // 切线平面控制
-            if (ImGui::Checkbox("显示切线平面", &显示切线平面))
-            {
-                更新数据();
-            }
-            
             if (显示切线平面)
             {
                 float 平面大小_f = static_cast<float>(切线平面大小);
-                if (ImGui::SliderFloat("切线平面大小 (mm)", &平面大小_f, 50.0f, 300.0f))
+                if (ImGui::SliderFloat("平面大小", &平面大小_f, 50.0f, 300.0f))
                 {
                     切线平面大小 = 平面大小_f;
-                    更新数据();
+                    需要更新 = true;
                 }
             }
+            
+            if (需要更新)
+                更新数据();
         }
         
         // 几何参数显示和调整
-        if (ImGui::CollapsingHeader("几何参数"))
+        if (ImGui::CollapsingHeader("螺距参数", ImGuiTreeNodeFlags_DefaultOpen))
         {
             bool 参数已更改 = false;
             
@@ -624,7 +666,7 @@ struct spiral_3d_render : irender
             static double 螺距 = scanner.参数.d / 层厚;  // 初始螺距
             
             float 层厚_f = static_cast<float>(层厚);
-            if (ImGui::SliderFloat("层厚 S (mm)", &层厚_f, 0.1f, 10.0f))
+            if (ImGui::SliderFloat("层厚", &层厚_f, 0.1f, 10.0f))
             {
                 层厚 = 层厚_f;
                 // 根据螺距和层厚更新床进增量
@@ -633,7 +675,7 @@ struct spiral_3d_render : irender
             }
             
             float 螺距_f = static_cast<float>(螺距);
-            if (ImGui::SliderFloat("螺距 (pitch)", &螺距_f, 0.1f, 5.0f))
+            if (ImGui::SliderFloat("螺距", &螺距_f, 0.1f, 5.0f))
             {
                 螺距 = 螺距_f;
                 // 根据螺距和层厚更新床进增量
@@ -643,7 +685,7 @@ struct spiral_3d_render : irender
             
             // 直接调整床进增量（会自动更新螺距）
             float d_f = static_cast<float>(scanner.参数.d);
-            if (ImGui::SliderFloat("床进增量 d (mm/360°)", &d_f, 0.1f, 50.0f))
+            if (ImGui::SliderFloat("床进增量", &d_f, 0.1f, 50.0f))
             {
                 scanner.参数.d = d_f;
                 // 根据床进增量和层厚更新螺距
@@ -657,18 +699,27 @@ struct spiral_3d_render : irender
             ImGui::Separator();
             
             // 显示其他固定参数
-            ImGui::Text("RF (焦点距离): %.1f mm", scanner.参数.RF);
-            ImGui::Text("RD (探测器距离): %.1f mm", scanner.参数.RD);
-            ImGui::Text("RM (测量场半径): %.1f mm", scanner.参数.RM);
-            
-            // 显示当前计算的螺距值
-            ImGui::Text("当前螺距: %.3f (d=%.2f mm, S=%.2f mm)", 螺距, scanner.参数.d, 层厚);
+            ImGui::Text("RF: %.1f", scanner.参数.RF);
+            ImGui::Text("RD: %.1f", scanner.参数.RD);
+            ImGui::Text("RM: %.1f", scanner.参数.RM);
+            ImGui::Text("螺距: %.3f", 螺距);
             
             if (参数已更改)
             {
                 更新数据();
             }
         }
+        
+        ImGui::PopStyleVar(2);  // 恢复样式变量
+        ImGui::EndChild();
+        
+        // 分隔线
+        ImGui::SameLine();
+        ImGui::Separator();
+        ImGui::SameLine();
+        
+        // 右侧3D可视化面板
+        ImGui::BeginChild("右侧面板", ImVec2(0, 0), false, ImGuiWindowFlags_None);
         
         // 3D绘图 - 使用ImPlot3D
         if (ImPlot3D::BeginPlot("螺旋轨迹与射线", ImVec2(-1, -1)))
@@ -783,6 +834,8 @@ struct spiral_3d_render : irender
             
             ImPlot3D::EndPlot();
         }
+        
+        ImGui::EndChild();
         
         ImGui::End();
     }

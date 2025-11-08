@@ -13,7 +13,8 @@
         "freetype",
         "glfw-binding",
         "vulkan-binding",
-        "win32-binding"
+        "win32-binding",
+        "docking-experimental"
       ]
     }
   ]
