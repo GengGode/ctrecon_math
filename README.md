@@ -1,57 +1,281 @@
-# cpp-cmake-project-template
-### C++ CMake Project Template
-## Description
-This is a C++ project template using CMake for building and managing dependencies. It includes a simple example.
+# 螺旋锥束CT扫描器可视化系统
 
-## Features
-- CMake for build system
-- vcpkg for dependency management
-- Unsealed CMake for easy configuration
-- Version control with Git
+## 项目简介
 
-## Usage
+本项目是一个基于论文实现的螺旋锥束CT扫描器3D可视化系统。系统实现了螺旋轨迹计算、射线束生成、切线平面绘制等功能，提供了交互式的3D可视化界面，帮助理解和研究螺旋CT扫描的几何特性。
 
-0. Unseal Template   
-If you are using this template, you need to unseal it first.  
-You can do this by running the following command in the root directory of the project:
-```shell
-powerhell unseal_template.ps1
-```
-This will replace the template names and create a new project with the same name as the repository.
+## 主要功能
 
-1. setting up vcpkg  
-Set Environment Variable `VCPKG_ROOT` to the path of vcpkg directory.  
-Or use .vcpkg-root file in the project root directory.
-```shell
+### 核心功能
+
+1. **螺旋轨迹可视化**
+   - 基于论文公式实现三维螺旋轨迹计算
+   - 支持多圈螺旋轨迹显示
+   - 实时显示当前角度的焦点位置
+
+2. **射线束可视化**
+   - 从焦点到探测器的射线束生成
+   - 可配置的探测器采样范围（U、V方向）
+   - 可调整的射线采样数量
+
+3. **切线平面显示**
+   - 在射线源位置绘制切线平面
+   - 平面由切线方向和径向方向定义
+   - 可调整平面大小和显示开关
+
+4. **动态旋转中心**
+   - 旋转中心随射线源在z轴方向移动
+   - 保持与射线源同一水平高度
+
+5. **参数调整**
+   - **螺距（Pitch）调整**：支持螺距、层厚、床进增量的实时调整
+   - **几何参数**：RF（焦点距离）、RD（探测器距离）、RM（测量场半径）
+   - **探测器参数**：U/V范围、采样数量
+   - **轨迹参数**：轨迹圈数、当前角度
+
+6. **动画功能**
+   - 自动旋转动画
+   - 可调整动画速度
+   - 平滑的角度过渡
+
+## 技术栈
+
+- **编程语言**: C++20
+- **构建系统**: CMake 3.25+
+- **依赖管理**: vcpkg
+- **图形界面**: 
+  - ImGui (Dear ImGui)
+  - ImPlot (2D绘图)
+  - ImPlot3D (3D绘图)
+- **渲染后端**: Vulkan
+- **窗口管理**: GLFW
+- **日志和格式化**: fmt, spdlog
+
+## 依赖项
+
+项目依赖通过 `vcpkg.json` 管理：
+
+- `fmt` - 格式化库
+- `spdlog` - 日志库
+- `gtest` - 单元测试框架
+- `glad` - OpenGL加载库
+- `glfw3` - 窗口和输入管理
+- `implot` - 2D绘图库
+- `implot3d` - 3D绘图库
+- `imgui` - 即时模式GUI库
+  - freetype支持
+  - glfw绑定
+  - vulkan绑定
+  - win32绑定
+
+## 构建要求
+
+- **CMake**: 3.25 或更高版本
+- **C++编译器**: 支持C++20标准的编译器
+  - Windows: MSVC 2019+ 或 MinGW
+  - Linux: GCC 10+ 或 Clang 12+
+- **vcpkg**: 用于依赖管理
+- **Vulkan SDK**: 用于Vulkan渲染（Windows上通常已包含在驱动中）
+
+## 安装和构建
+
+### 1. 设置vcpkg
+
+设置环境变量 `VCPKG_ROOT` 指向vcpkg安装目录，或在项目根目录创建 `.vcpkg-root` 文件：
+
+**Windows PowerShell:**
+```powershell
 $env:VCPKG_ROOT="C:\vcpkg"
-          or
+```
+
+**或创建文件:**
+```powershell
 echo "C:\vcpkg" > .vcpkg-root
 ```
 
-2. Cmake configure and build
-```shell
-cmake -B build && cmake --build build
+**Linux/Mac:**
+```bash
+export VCPKG_ROOT=/path/to/vcpkg
+# 或
+echo "/path/to/vcpkg" > .vcpkg-root
 ```
 
-3. Run the executable
-```shell
-.\build\bin\Release\test.exe
+### 2. 配置和构建
+
+```bash
+# 配置项目
+cmake -B build
+
+# 构建项目
+cmake --build build --config Release
+
+# 或使用单命令
+cmake -B build && cmake --build build --config Release
 ```
 
-## Dependencies
+### 3. 运行程序
 
-- Fmt
-- Spdlog
-
-## Using GitHub Codespaces
-
-1. Open the repository in GitHub Codespaces.
-2. Codespaces will automatically set up the development environment.
-3. CMake configure and build
-```shell
-cmake -B build && cmake --build build
+**Windows:**
+```powershell
+.\build\bin\Release\ctrecon-math.app.exe
 ```
-4. Run the executable
-```shell
-.\build\bin\Release\test.exe
+
+**Linux:**
+```bash
+./build/bin/Release/ctrecon-math.app
 ```
+
+## 使用方法
+
+### 界面说明
+
+程序启动后会显示一个3D可视化窗口，包含以下控制面板：
+
+#### 控制参数面板
+
+- **自动动画**: 开启/关闭自动旋转动画
+- **动画速度**: 调整旋转速度（弧度/秒）
+- **当前角度**: 手动设置当前投影角度
+- **角度步长**: 手动调整角度时的步长
+- **探测器U/V范围**: 调整探测器采样范围
+- **U/V采样数**: 调整射线采样数量
+- **轨迹圈数**: 设置显示的螺旋圈数
+- **显示切线平面**: 开启/关闭切线平面显示
+- **切线平面大小**: 调整切线平面的尺寸
+
+#### 几何参数面板
+
+- **层厚 S**: 调整层厚（mm）
+- **螺距 (pitch)**: 调整螺距值（pitch = d / S）
+- **床进增量 d**: 直接调整每360°旋转的床进增量
+- **RF**: 焦点到旋转中心的距离（570mm）
+- **RD**: 探测器到旋转中心的距离（435mm）
+- **RM**: 测量场半径（250mm）
+
+### 操作说明
+
+1. **查看螺旋轨迹**: 在3D视图中可以看到完整的螺旋轨迹
+2. **观察射线束**: 当前角度的射线束会从焦点延伸到探测器
+3. **调整参数**: 使用滑块实时调整各种参数，观察效果变化
+4. **启动动画**: 勾选"自动动画"查看连续的旋转效果
+5. **调整螺距**: 在几何参数面板中调整螺距，观察螺旋紧密程度的变化
+
+## 数学公式
+
+### 螺旋焦点轨迹
+
+根据论文公式(1)，螺旋焦点轨迹为：
+
+```
+s(a) = [RF·sin(a), -RF·cos(a), d·a/(2π)]
+```
+
+其中：
+- `a`: 投影角度（弧度）
+- `RF`: 焦点到旋转中心的距离
+- `d`: 每360°旋转的床进增量
+
+### 探测器平面
+
+根据论文公式(2a)，探测器平面上的点为：
+
+```
+r(u,v) = [-RD·sin(a), RD·cos(a), d·a/(2π)] + u·[cos(a), sin(a), 0] + v·[0, 0, 1]
+```
+
+其中：
+- `RD`: 探测器到旋转中心的距离
+- `u, v`: 探测器坐标
+
+### 螺距计算
+
+```
+pitch = d / S
+```
+
+其中：
+- `d`: 床进增量（mm/360°）
+- `S`: 层厚（mm）
+
+## 项目结构
+
+```
+ctrecon_math/
+├── cmake/                    # CMake配置文件
+│   ├── auto_increment_version.cmake
+│   ├── cpm.cmake
+│   ├── project_setting.cmake
+│   └── vcpkg_env.cmake
+├── source/                   # 源代码
+│   ├── application/         # 应用程序
+│   │   ├── app.cpp          # 主程序（螺旋扫描器实现）
+│   │   ├── debugger.cpp     # 调试窗口实现
+│   │   └── debugger.h       # 调试窗口头文件
+│   ├── interface_library/   # 接口库
+│   ├── library/             # 共享库
+│   └── static_library/      # 静态库
+├── deps_party/              # 第三方依赖配置
+├── build/                   # 构建输出目录
+├── CMakeLists.txt           # 主CMake配置
+├── vcpkg.json               # vcpkg依赖配置
+└── README.md                # 本文件
+```
+
+## 主要类说明
+
+### `螺旋锥束扫描器`
+
+实现螺旋CT扫描器的核心计算功能：
+
+- `计算焦点位置(a)`: 计算角度a处的焦点位置
+- `计算探测器点(a, u, v)`: 计算探测器平面上的点
+- `生成射线束(...)`: 生成从焦点到探测器的射线束
+- `生成螺旋轨迹(...)`: 生成螺旋轨迹点集
+- `计算切线方向(a)`: 计算螺旋线的切线方向
+- `计算径向方向(a)`: 计算从焦点指向中心的方向
+- `计算旋转中心(a)`: 计算旋转中心位置（随z轴移动）
+- `生成切线平面(...)`: 生成切线平面上的点
+
+### `spiral_3d_render`
+
+3D可视化渲染器，负责UI和可视化：
+
+- 参数控制界面
+- 3D场景渲染
+- 动画控制
+- 数据更新管理
+
+## 开发说明
+
+### 代码风格
+
+- 使用中文变量名和函数名（便于理解论文中的概念）
+- C++20标准特性
+- 类型安全的角度/弧度处理（`stdex::deg` 和 `stdex::rad`）
+
+### 扩展功能
+
+可以轻松扩展以下功能：
+
+1. 添加更多重建算法
+2. 实现数据导入/导出
+3. 添加更多可视化选项
+4. 实现重建质量评估
+
+## 许可证
+
+[请根据实际情况添加许可证信息]
+
+## 参考文献
+
+本项目基于以下论文实现：
+
+- Kachelrieß, M., Schaller, S., & Kalender, W. A. (2000). Advanced single-slice rebinning in cone-beam spiral CT. Medical Physics, 27(4), 754-772.
+
+## 贡献
+
+欢迎提交Issue和Pull Request！
+
+## 联系方式
+
+[请根据实际情况添加联系方式]
